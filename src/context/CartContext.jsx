@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -7,53 +6,28 @@ const CartContext = createContext();
 
 export default function CartContextProvider({ children }) {
   const [cart, setCart] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem("userToken") || "");
-
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const headers = {
-    token,
+    token: localStorage.getItem("userToken"),
   };
 
-  // Fetch cart data only when token exists
-  const { data, refetch, isFetching } = useQuery({
-    queryKey: ["cart", token],
-    queryFn: async () => {
-      const response = await axios.get(
+  // Fetch cart data
+  async function getProductsCart() {
+    try {
+      setIsLoading(true); // Set loading to true while fetching
+      const { data } = await axios.get(
         "https://ecommerce.routemisr.com/api/v1/cart",
-        { headers }
+        {
+          headers,
+        }
       );
-      return response.data;
-    },
-    enabled: !!token,
-  });
-
-  useEffect(() => {
-    if (data) {
       setCart(data);
-      setIsLoading(false);
+      setIsLoading(false); // Set loading to false after fetching
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false); // Set loading to false on error
     }
-  }, [data]);
-
-  useEffect(() => {
-    const handleTokenChange = () => {
-      const newToken = localStorage.getItem("userToken") || "";
-      if (newToken !== token) {
-        setToken(newToken);
-        refetch();
-      }
-    };
-
-    window.addEventListener("storage", handleTokenChange);
-    return () => {
-      window.removeEventListener("storage", handleTokenChange);
-    };
-  }, [token, refetch]);
-
-  useEffect(() => {
-    if (token) {
-      refetch();
-    }
-  }, [token]);
+  }
 
   // Update product count in cart
   async function updateProductCounttoCart(productId, count) {
@@ -61,11 +35,12 @@ export default function CartContextProvider({ children }) {
       const { data } = await axios.put(
         `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
         { count },
-        { headers }
+        {
+          headers,
+        }
       );
       setCart(data);
       toast.success(data.status, { duration: 1000, position: "bottom-right" });
-      refetch();
     } catch (err) {
       console.log(err);
     }
@@ -76,11 +51,12 @@ export default function CartContextProvider({ children }) {
     try {
       const { data } = await axios.delete(
         `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
-        { headers }
+        {
+          headers,
+        }
       );
       setCart(data);
       toast.success(data.status, { duration: 2000, position: "bottom-right" });
-      refetch();
     } catch (err) {
       console.log(err);
     }
@@ -92,10 +68,12 @@ export default function CartContextProvider({ children }) {
       const { data } = await axios.post(
         "https://ecommerce.routemisr.com/api/v1/cart",
         { productId },
-        { headers }
+        {
+          headers,
+        }
       );
+      getProductsCart(); // Refresh cart data
       toast.success(data.message, { duration: 2000, position: "bottom-right" });
-      refetch();
     } catch (err) {
       console.log(err);
       toast.error("Failed to add product to cart. Please try again.");
@@ -107,15 +85,22 @@ export default function CartContextProvider({ children }) {
     try {
       const { data } = await axios.delete(
         "https://ecommerce.routemisr.com/api/v1/cart",
-        { headers }
+        {
+          headers,
+        }
       );
+      getProductsCart();
       toast.success(data.message, { duration: 2000, position: "bottom-right" });
-      refetch();
     } catch (err) {
       console.log(err);
       toast.error("Failed to clear the cart. Please try again.");
     }
   }
+
+  // Fetch cart data on component mount
+  useEffect(() => {
+    getProductsCart();
+  }, []); // Empty dependency array to run only once on mount
 
   return (
     <CartContext.Provider
@@ -126,8 +111,7 @@ export default function CartContextProvider({ children }) {
         deleteProductCart,
         setCart,
         clearCart,
-        isLoading: isLoading || isFetching,
-        getProductsCart: refetch,
+        isLoading,
       }}
     >
       {children}
