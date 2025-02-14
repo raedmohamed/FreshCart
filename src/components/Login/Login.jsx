@@ -17,14 +17,16 @@ export default function Login() {
         "https://ecommerce.routemisr.com/api/v1/auth/signin",
         obj
       );
+
       localStorage.setItem("userToken", data.token);
       setUserToken(data.token);
-      navigate("/");
 
-      console.log(data);
+      navigate("/"); // Navigate first
+      window.location.reload();
+      window.location.reload(); // Force reload to reinitialize contexts (optional)
     } catch (err) {
-      console.log(err.response.data.message);
-      setApiError(err.response.data.message);
+      console.log(err.response?.data?.message || "Login failed");
+      setApiError(err.response?.data?.message);
       setIsLoading(false);
     }
   }
