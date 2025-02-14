@@ -112,6 +112,7 @@ export default function CartContextProvider({ children }) {
         setCart,
         clearCart,
         isLoading,
+        getProductsCart,
       }}
     >
       {children}

@@ -3,12 +3,14 @@ import { useFormik } from "formik";
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
+import { CartContext } from "../../context/CartContext";
 
 export default function Login() {
   const [apiError, setApiError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setUserToken } = useContext(UserContext);
+  const { getProductsCart } = useContext(CartContext);
 
   async function login(obj) {
     try {
@@ -21,9 +23,8 @@ export default function Login() {
       localStorage.setItem("userToken", data.token);
       setUserToken(data.token);
 
-      navigate("/"); // Navigate first
-      window.location.reload();
-      window.location.reload(); // Force reload to reinitialize contexts (optional)
+      navigate("/");
+      getProductsCart();
     } catch (err) {
       console.log(err.response?.data?.message || "Login failed");
       setApiError(err.response?.data?.message);
