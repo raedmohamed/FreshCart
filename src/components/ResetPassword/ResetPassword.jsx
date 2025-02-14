@@ -36,8 +36,8 @@ function ResetPassword() {
         console.log("Password reset successful:", data);
         localStorage.setItem("userToken", data.token);
         setUserToken(data.token);
-        navigate("/");
         getProductsCart();
+        navigate("/");
       } catch (error) {
         setApiError(error.response?.data?.message || "Something went wrong");
       } finally {

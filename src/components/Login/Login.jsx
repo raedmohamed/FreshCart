@@ -23,8 +23,8 @@ export default function Login() {
       localStorage.setItem("userToken", data.token);
       setUserToken(data.token);
 
-      navigate("/");
       getProductsCart();
+      navigate("/");
     } catch (err) {
       console.log(err.response?.data?.message || "Login failed");
       setApiError(err.response?.data?.message);
