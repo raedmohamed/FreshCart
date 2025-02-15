@@ -7,6 +7,7 @@ const CartContext = createContext();
 export default function CartContextProvider({ children }) {
   const [cart, setCart] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [token, setToken] = useState(false);
   const headers = {
     token: localStorage.getItem("userToken"),
   };
@@ -99,8 +100,8 @@ export default function CartContextProvider({ children }) {
 
   // Fetch cart data on component mount
   useEffect(() => {
-    getProductsCart();
-  }, []); // Empty dependency array to run only once on mount
+    if (token) getProductsCart();
+  }, [token]); // Empty dependency array to run only once on mount
 
   return (
     <CartContext.Provider
@@ -112,6 +113,8 @@ export default function CartContextProvider({ children }) {
         setCart,
         clearCart,
         isLoading,
+        setToken,
+        token,
       }}
     >
       {children}

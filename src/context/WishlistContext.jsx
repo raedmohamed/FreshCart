@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { CartContext } from "./CartContext";
 
 const WishlistContext = createContext();
 
 export default function WishlistContextProvider({ children }) {
+  const { token } = useContext(CartContext);
   const headers = { token: localStorage.getItem("userToken") };
   const [wishlistData, setWishlistData] = useState({ items: [], count: 0 });
 
@@ -16,8 +18,9 @@ export default function WishlistContextProvider({ children }) {
   }
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["getLoggedUserToWishList"],
+    queryKey: ["getLoggedUserToWishList", token],
     queryFn: getLoggedUserToWishList,
+    enabled: !!token,
     select: (res) => ({
       items: res.data.data,
       count: res.data.count,

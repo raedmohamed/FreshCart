@@ -1,10 +1,20 @@
+import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-// import style from "./ProtectedRoute.module.css";
+import { CartContext } from "../../context/CartContext";
 
 export default function ProtectedRoute({ children }) {
-  if (localStorage.getItem("userToken")) {
-    return <>{children}</>;
-  } else {
-    return <Navigate to={"/login"}></Navigate>;
+  const { setToken } = useContext(CartContext);
+  const userToken = localStorage.getItem("userToken");
+
+  useEffect(() => {
+    if (userToken) {
+      setToken(true);
+    }
+  }, [userToken, setToken]); // Ensure `useEffect` runs when userToken changes
+
+  if (!userToken) {
+    return <Navigate to="/login" />;
   }
+
+  return <>{children}</>;
 }

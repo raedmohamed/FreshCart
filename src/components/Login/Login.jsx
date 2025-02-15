@@ -21,7 +21,6 @@ export default function Login() {
       localStorage.setItem("userToken", data.token);
       setUserToken(data.token);
       navigate("/");
-      window.location.reload();
     } catch (err) {
       console.log(err.response?.data?.message || "Login failed");
       setApiError(err.response?.data?.message);

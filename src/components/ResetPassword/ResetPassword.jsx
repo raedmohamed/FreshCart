@@ -36,7 +36,6 @@ function ResetPassword() {
         setUserToken(data.token);
 
         navigate("/");
-        window.location.reload();
       } catch (error) {
         setApiError(error.response?.data?.message || "Something went wrong");
       } finally {
